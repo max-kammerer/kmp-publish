@@ -23,7 +23,6 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: publishToMavenLocal
-
-#      - name: Execute Gradle build
-#        run: ./gradlew publishToMavenLocal
+          arguments: publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

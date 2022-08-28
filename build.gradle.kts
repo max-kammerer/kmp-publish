@@ -30,14 +30,29 @@ kotlin {
     }
     val hostOs = System.getProperty("os.name")
     val isMingwX64 = hostOs.startsWith("Windows")
-    val nativeTarget = when {
-        hostOs == "Mac OS X" -> macosX64("native")
-        hostOs == "Linux" -> linuxX64("native")
-        isMingwX64 -> mingwX64("native")
+    val (nativeTarget, isMainHost) = when {
+        hostOs == "Mac OS X" -> macosX64("native") to false
+        hostOs == "Linux" -> linuxX64("native") to true
+        isMingwX64 -> mingwX64("native") to false
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
-    androidNativeArm32("androidArm32")
-    
+
+    val publicationsFromMainHost =
+        listOf(jvm(), js()).map { it.name } + "kotlinMultiplatform"
+
+    publishing {
+        publications {
+            matching { it.name in publicationsFromMainHost }.all {
+                val targetPublication = this@all
+                tasks.withType<AbstractPublishToMaven>()
+                    .matching { it.publication == targetPublication }
+                    .configureEach { onlyIf {
+                        isMainHost
+                    } }
+            }
+        }
+    }
+
     sourceSets {
         val commonMain by getting
         val commonTest by getting {
@@ -51,8 +66,6 @@ kotlin {
         val jsTest by getting
         val nativeMain by getting
         val nativeTest by getting
-        val androidArm32Main by getting
-        val androidArm32Test by getting
     }
 }
 
@@ -60,7 +73,12 @@ kotlin {
 publishing {
     repositories {
         maven {
-            //...
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/max-kammerer/kmp-publish")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
         }
     }
 }
