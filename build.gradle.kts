@@ -38,7 +38,7 @@ kotlin {
     }
 
     val publicationsFromMainHost =
-        listOf(jvm(), js()).map { it.name } + "kotlinMultiplatform"
+        listOf(jvm(), js(BOTH)).map { it.name } + "kotlinMultiplatform"
 
     publishing {
         publications {
@@ -78,6 +78,15 @@ publishing {
             credentials {
                 username = System.getenv("GITHUB_ACTOR")
                 password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+
+        maven {
+            name = "Space"
+            url = uri("https://packages.jetbrains.team/maven/p/kmp-publish-research/kmp-publish-research")
+            credentials {
+                username = System.getenv("S_NAME")
+                password = System.getenv("S_KEY")
             }
         }
     }

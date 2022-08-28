@@ -26,3 +26,5 @@ jobs:
           arguments: publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          S_NAME: ${{ secrets.S_NAME }}
+          S_KEY: ${{ secrets.S_KEY }}
